@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
@@ -17,7 +18,7 @@ namespace confluent_consumer
             ClientConfig kafkaConfig = await ConfluentHelper.LoadKafkaConfiguration(@"D:\Git_Repositories\confluent-configuration.txt", null);
             var consumerConfig = new ConsumerConfig(kafkaConfig)
             {
-                GroupId = "team-table-mapping-consumer",
+                GroupId = "data-object-mapping-consumer",
                 AutoOffsetReset = AutoOffsetReset.Earliest,
                 EnableAutoCommit = true,
                 EnablePartitionEof = true
@@ -53,10 +54,12 @@ namespace confluent_consumer
                 .Build())
             {
                 consumer.Subscribe(topics);
+                
 
+                // Manual assignment (not automatic subscribe)
                 //var partitionList = topics.Select(topic => new TopicPartitionOffset(topic, 0, Offset.Beginning)).ToList();
                 //consumer.Assign(partitionList);
-                
+
                 try
                 {
                     while (true)
@@ -74,7 +77,7 @@ namespace confluent_consumer
                                 continue;
                             }
 
-                            Console.WriteLine($"Received message at {consumeResult.TopicPartitionOffset}: ${consumeResult.Message.Value.tableMappingHash}");
+                            Console.WriteLine($"Received message at {consumeResult.TopicPartitionOffset}: ${consumeResult.Message.Value.sourceDataObject.name}");
                         }
                         catch (ConsumeException e)
                         {

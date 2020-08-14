@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "confulent-producer", "confluent-producer\confulent-producer.csproj", "{233827E0-C82A-4B58-A11A-8073D4E6B1B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "confluent-producer", "confluent-producer\confluent-producer.csproj", "{233827E0-C82A-4B58-A11A-8073D4E6B1B7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "confluent-consumer", "confluent-consumer\confluent-consumer.csproj", "{5D5C0264-4C80-435E-AE3F-31ACC14D23E7}"
 EndProject
@@ -13,19 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libraries", "libraries", "{
 	ProjectSection(SolutionItems) = preProject
 		libraries\DataWarehouseAutomation.dll = libraries\DataWarehouseAutomation.dll
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{C6CBCCFB-292C-4242-94FE-CB6279B42201}"
-	ProjectSection(SolutionItems) = preProject
-		examples\HUB_CUSTOMER.json = examples\HUB_CUSTOMER.json
-		examples\HUB_INCENTIVE_OFFER.json = examples\HUB_INCENTIVE_OFFER.json
-		examples\LNK_MEMBERSHIP.json = examples\LNK_MEMBERSHIP.json
-		examples\PSA_PROFILER_CUST_MEMBERSHIP.json = examples\PSA_PROFILER_CUST_MEMBERSHIP.json
-		examples\PSA_USERMANAGED_SEGMENT.json = examples\PSA_USERMANAGED_SEGMENT.json
-		examples\SAT_MEMBERSHIP_PLAN_VALUATION.json = examples\SAT_MEMBERSHIP_PLAN_VALUATION.json
-		examples\STG_PROFILER_CUST_MEMBERSHIP.json = examples\STG_PROFILER_CUST_MEMBERSHIP.json
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples_publication", "examples_publication", "{EFBF956A-E6A1-486E-B5D3-AB9BD147F578}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -56,10 +56,19 @@ namespace confluent_producer
 
         private static void WatchForFiles()
         {
+            string publicationPath = AppDomain.CurrentDomain.BaseDirectory + @"\examples-publication";
+
+            if (!Directory.Exists(publicationPath))
+            {
+                Directory.CreateDirectory(publicationPath);
+            }
+
             // Object initialiser
             FileSystemWatcher fileSystemWatcher = new FileSystemWatcher
             {
-                Path = @"D:\Git_Repositories\roelant-confluent\examples_publication",
+                
+                //Path = @"D:\Git_Repositories\roelant-confluent\examples_publication",
+                Path = publicationPath,
                 Filter = "*.json",
                 EnableRaisingEvents = true
             };
@@ -94,7 +103,6 @@ namespace confluent_producer
         private static async void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
         {
             Console.WriteLine($"A new file {e.Name} has been detected.");
-
             await DeserializeMappingFile(e);
         }
 

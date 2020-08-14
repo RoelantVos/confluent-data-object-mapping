@@ -1,0 +1,82 @@
+{
+  "metadataConfiguration": {
+    "changeDataCaptureAttribute": "CDC_OPERATION",
+    "recordSourceAttribute": "RECORD_SOURCE",
+    "loadDateTimeAttribute": "LOAD_DATETIME",
+    "eventDateTimeAttribute": "EVENT_DATETIME",
+    "recordChecksumAttribute": "HASH_FULL_RECORD",
+    "etlProcessAttribute": "ETL_INSERT_RUN_ID",
+    "sourceRowIdAttribute": "SOURCE_ROW_ID"
+  },
+  "generationSpecificMetadata": {
+    "selectedDataObject": "PSA_USERMANAGED_SEGMENT",
+    "generationDateTime": "2020-07-21T11:44:50.5146982+10:00"
+  },
+  "dataObjectMappingList": [
+    {
+      "mappingName": "PSA_USERMANAGED_SEGMENT",
+      "mappingClassification": [
+        {
+          "id": 2,
+          "classification": "PersistentStagingArea",
+          "notes": "The Persistent Staging Area (PSA) is the foundation of the Virtual Enterprise Data Warehouse (EDW). The ETL effectively compares and loads the delta into the PSA tables that correspond to the Staging Area counterparts. Because of this the logic is generated as 'SELECT INSERT' to load new data delta into this area."
+        }
+      ],
+      "sourceDataObject": {
+        "name": "STG_USERMANAGED_SEGMENT"
+      },
+      "targetDataObject": {
+        "name": "PSA_USERMANAGED_SEGMENT",
+        "dataObjectConnection": {
+          "dataConnectionString": "PersistentStagingDatabase"
+        }
+      },
+      "relatedDataObject": [
+        {
+          "name": "PSA_USERMANAGED_SEGMENT",
+          "dataObjectClassification": [
+            {
+              "classification": "Lookup",
+              "notes": "Lookup table related to the source-to-target mapping"
+            }
+          ]
+        }
+      ],
+      "dataItemMapping": [
+        {
+          "sourceDataItem": {
+            "name": "Demographic_Segment_Code"
+          },
+          "targetDataItem": {
+            "name": "Demographic_Segment_Code"
+          }
+        },
+        {
+          "sourceDataItem": {
+            "name": "Demographic_Segment_Description"
+          },
+          "targetDataItem": {
+            "name": "Demographic_Segment_Description"
+          }
+        }
+      ],
+      "businessKey": [
+        {
+          "businessKeyComponentMapping": [
+            {
+              "sourceDataItem": {
+                "name": "Demographic_Segment_Code"
+              },
+              "targetDataItem": {
+                "name": "Demographic_Segment_Code"
+              }
+            }
+          ],
+          "surrogateKey": "Not applicable"
+        }
+      ],
+      "filterCriterion": "",
+      "enabled": true
+    }
+  ]
+}

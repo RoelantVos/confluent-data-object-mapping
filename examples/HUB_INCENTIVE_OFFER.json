@@ -1,0 +1,113 @@
+{
+  "metadataConfiguration": {
+    "changeDataCaptureAttribute": "CDC_OPERATION",
+    "recordSourceAttribute": "RECORD_SOURCE",
+    "loadDateTimeAttribute": "LOAD_DATETIME",
+    "eventDateTimeAttribute": "EVENT_DATETIME",
+    "recordChecksumAttribute": "HASH_FULL_RECORD",
+    "etlProcessAttribute": "ETL_INSERT_RUN_ID",
+    "sourceRowIdAttribute": "SOURCE_ROW_ID"
+  },
+  "generationSpecificMetadata": {
+    "selectedDataObject": "HUB_INCENTIVE_OFFER",
+    "generationDateTime": "2020-07-21T11:44:50.5366978+10:00"
+  },
+  "dataObjectMappingList": [
+    {
+      "mappingName": "HUB_INCENTIVE_OFFER",
+      "mappingClassification": [
+        {
+          "id": 3,
+          "classification": "CoreBusinessConcept",
+          "notes": "The source-to-target mappings for a Hub entity type. The Hub entities define the business concept and integration point for the model. In the Virtual Data Warehouse, the generated views combine the metadata from the various source to target mappings to create a single integrated Hub query."
+        }
+      ],
+      "sourceDataObject": {
+        "name": "PSA_PROFILER_CUSTOMER"
+      },
+      "targetDataObject": {
+        "name": "HUB_INCENTIVE_OFFER",
+        "dataObjectConnection": {
+          "dataConnectionString": "PersistentStagingDatabase"
+        }
+      },
+      "relatedDataObject": [
+        {
+          "name": "HUB_INCENTIVE_OFFER",
+          "dataObjectClassification": [
+            {
+              "classification": "Lookup",
+              "notes": "Lookup table related to the source-to-target mapping"
+            }
+          ]
+        }
+      ],
+      "dataItemMapping": null,
+      "businessKey": [
+        {
+          "businessKeyComponentMapping": [
+            {
+              "sourceDataItem": {
+                "name": "OfferID"
+              },
+              "targetDataItem": {
+                "name": "OFFER_ID"
+              }
+            }
+          ],
+          "surrogateKey": "INCENTIVE_OFFER_HSH"
+        }
+      ],
+      "filterCriterion": "6=6",
+      "enabled": true
+    },
+    {
+      "mappingName": "HUB_INCENTIVE_OFFER",
+      "mappingClassification": [
+        {
+          "id": 3,
+          "classification": "CoreBusinessConcept",
+          "notes": "The source-to-target mappings for a Hub entity type. The Hub entities define the business concept and integration point for the model. In the Virtual Data Warehouse, the generated views combine the metadata from the various source to target mappings to create a single integrated Hub query."
+        }
+      ],
+      "sourceDataObject": {
+        "name": "PSA_PROFILER_OFFER"
+      },
+      "targetDataObject": {
+        "name": "HUB_INCENTIVE_OFFER",
+        "dataObjectConnection": {
+          "dataConnectionString": "PersistentStagingDatabase"
+        }
+      },
+      "relatedDataObject": [
+        {
+          "name": "HUB_INCENTIVE_OFFER",
+          "dataObjectClassification": [
+            {
+              "classification": "Lookup",
+              "notes": "Lookup table related to the source-to-target mapping"
+            }
+          ]
+        }
+      ],
+      "dataItemMapping": null,
+      "businessKey": [
+        {
+          "businessKeyComponentMapping": [
+            {
+              "sourceDataItem": {
+                "name": "OfferID"
+              },
+              "targetDataItem": {
+                "name": "OFFER_ID"
+              }
+            }
+          ],
+          "surrogateKey": "INCENTIVE_OFFER_HSH"
+        }
+      ],
+      "filterCriterion": "3=3",
+      "enabled": true
+    }
+  ]
+}

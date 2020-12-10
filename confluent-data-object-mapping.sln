@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "confluent-producer", "confluent-producer\confluent-producer.csproj", "{233827E0-C82A-4B58-A11A-8073D4E6B1B7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "confluent-consumer", "confluent-consumer\confluent-consumer.csproj", "{5D5C0264-4C80-435E-AE3F-31ACC14D23E7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "confluent-lib", "confluent-lib\confluent-lib.csproj", "{E5BA1E05-36D2-4805-8B35-8A5B1F2E2513}"
@@ -14,16 +12,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libraries", "libraries", "{
 		libraries\DataWarehouseAutomation.dll = libraries\DataWarehouseAutomation.dll
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "example-form", "WindowsFormsApp1\example-form.csproj", "{09F433E5-578C-4A96-873F-9279D8C0F875}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "confluent-producer", "confluent-producer\confluent-producer.csproj", "{6B1CEB9F-1BE0-4D27-9666-A9DEFE5164E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{233827E0-C82A-4B58-A11A-8073D4E6B1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{233827E0-C82A-4B58-A11A-8073D4E6B1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{233827E0-C82A-4B58-A11A-8073D4E6B1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{233827E0-C82A-4B58-A11A-8073D4E6B1B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5D5C0264-4C80-435E-AE3F-31ACC14D23E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5D5C0264-4C80-435E-AE3F-31ACC14D23E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D5C0264-4C80-435E-AE3F-31ACC14D23E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -32,6 +30,14 @@ Global
 		{E5BA1E05-36D2-4805-8B35-8A5B1F2E2513}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5BA1E05-36D2-4805-8B35-8A5B1F2E2513}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5BA1E05-36D2-4805-8B35-8A5B1F2E2513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09F433E5-578C-4A96-873F-9279D8C0F875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09F433E5-578C-4A96-873F-9279D8C0F875}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09F433E5-578C-4A96-873F-9279D8C0F875}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09F433E5-578C-4A96-873F-9279D8C0F875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B1CEB9F-1BE0-4D27-9666-A9DEFE5164E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B1CEB9F-1BE0-4D27-9666-A9DEFE5164E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B1CEB9F-1BE0-4D27-9666-A9DEFE5164E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B1CEB9F-1BE0-4D27-9666-A9DEFE5164E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Confluent.Kafka;
@@ -8,8 +9,30 @@ using confluent_lib;
 using DataWarehouseAutomation;
 using Newtonsoft.Json;
 
+
 namespace confluent_producer
 {
+
+
+    class LocalSystemPerformance
+    {
+        public float cpuPercentage { get; set; }
+        public float memPercentage { get; set; }
+
+        public LocalSystemPerformance()
+        {
+            var localPercentage = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            localPercentage.NextValue();
+
+            this.cpuPercentage = localPercentage.NextValue();
+            this.memPercentage = new PerformanceCounter("Memory", "Available MBytes").NextValue();
+        }
+    }
+    
+
+    
+
+
     class Program
     {
         /// <summary>
@@ -22,26 +45,36 @@ namespace confluent_producer
             internal static SchemaRegistryConfig schemaRegistryConfig { get; set; }
 
             // Array of topics to work with in this example
-            internal static string[] topics { get; } = new string[] {"dataObjectMappings"};
+            internal static string[] topics { get; } = new string[] { "dataObjectMappings", "systemPerformance" };
         }
 
         static async Task Main()
         {
             // Setting up the configuration for the Kafka client and Schema registry, saved in a local file
-            GlobalParameters.clientConfig = await ConfluentHelper.LoadKafkaConfiguration(@"D:\Git_Repositories\confluent-configuration.txt", null);
-            GlobalParameters.schemaRegistryConfig = await ConfluentHelper.LoadSchemaRegistryConfiguration(@"D:\Git_Repositories\schemaregistry-configuration.txt");
-           
+            GlobalParameters.clientConfig = await ConfluentHelper.LoadKafkaConfiguration(@"C:\Github\confluent-configuration.txt", null);
+            GlobalParameters.schemaRegistryConfig = await ConfluentHelper.LoadSchemaRegistryConfiguration(@"C:\Github\schemaregistry-configuration.txt");
+
             // Clear topic, if existing (reset environment)
             await ConfluentHelper.DeleteTopic(GlobalParameters.topics[0], GlobalParameters.clientConfig);
 
             // Create topic, if not existing yet
             await ConfluentHelper.CreateTopicIfNotExists(GlobalParameters.topics[0], 1, 3, GlobalParameters.clientConfig);
+            await ConfluentHelper.CreateTopicIfNotExists(GlobalParameters.topics[1], 1, 3, GlobalParameters.clientConfig);
 
             // Start a file watcher to monitor input directory for mapping Json files
             // Event handles on file detection trigger the publishing actions
-            WatchForFiles();
+            WatchForFiles(AppDomain.CurrentDomain.BaseDirectory + @"\examples-publication");
+
+
+            for (int i = 0; i < 100; i++)
+            {
+                var bla = new LocalSystemPerformance();
+                await PublishEventSystemPerformance(bla, GlobalParameters.schemaRegistryConfig, GlobalParameters.clientConfig, GlobalParameters.topics);
+            }
+
 
             // Start waiting until Escape is pressed
+            Console.WriteLine();
             Console.WriteLine("Press ESC to quit.");
             do
             {
@@ -54,9 +87,10 @@ namespace confluent_producer
             // END OF APPLICATION
         }
 
-        private static void WatchForFiles()
+
+
+        private static void WatchForFiles(string publicationPath)
         {
-            string publicationPath = AppDomain.CurrentDomain.BaseDirectory + @"\examples-publication";
 
             if (!Directory.Exists(publicationPath))
             {
@@ -66,7 +100,7 @@ namespace confluent_producer
             // Object initialiser
             FileSystemWatcher fileSystemWatcher = new FileSystemWatcher
             {
-                
+
                 //Path = @"D:\Git_Repositories\roelant-confluent\examples_publication",
                 Path = publicationPath,
                 Filter = "*.json",
@@ -79,7 +113,7 @@ namespace confluent_producer
             fileSystemWatcher.Deleted += FileSystemWatcher_Deleted;
             fileSystemWatcher.Renamed += FileSystemWatcher_Renamed;
 
-            Console.Write("Listening for new or updated files.");
+            Console.Write($"Listening for new or updated files in {publicationPath}.");
         }
 
         private static async void FileSystemWatcher_Renamed(object sender, RenamedEventArgs e)
@@ -113,8 +147,7 @@ namespace confluent_producer
 
             foreach (DataObjectMapping individualMapping in deserialisedMapping.dataObjectMappingList)
             {
-                await PublishEvent(individualMapping, GlobalParameters.schemaRegistryConfig, GlobalParameters.clientConfig,
-                    GlobalParameters.topics);
+                await PublishEvent(individualMapping, GlobalParameters.schemaRegistryConfig, GlobalParameters.clientConfig, GlobalParameters.topics);
             }
         }
 
@@ -123,11 +156,11 @@ namespace confluent_producer
             using (var schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryConfig))
             {
                 //using (var producer = new Producer<string, string>(config, new StringSerializer(Encoding.UTF8), new StringSerializer(Encoding.UTF8)))
-                
-                    // Produce events to the topic
-                    var producer = new ProducerBuilder<string, DataObjectMapping>(kafkaConfig)
-                        .SetValueSerializer(new JsonSerializer<DataObjectMapping>(schemaRegistry, new JsonSerializerConfig { BufferBytes = 100 }))
-                        .Build();
+
+                // Produce events to the topic
+                var producer = new ProducerBuilder<string, DataObjectMapping>(kafkaConfig)
+                    .SetValueSerializer(new JsonSerializer<DataObjectMapping>(schemaRegistry, new JsonSerializerConfig { BufferBytes = 100 }))
+                    .Build();
 
                 var localMessage = new Message<string, DataObjectMapping>();
                 localMessage.Key = "DataObjectMapping";
@@ -138,13 +171,44 @@ namespace confluent_producer
 
                 // Create asynchronous task (and wait for it)
                 var delivery = producer.ProduceAsync(topics[0], localMessage);
-                await delivery.ContinueWith(AsyncHandler);
+                await delivery.ContinueWith(AsyncHandlerDataObjectMapping);
 
                 producer.Flush(TimeSpan.FromSeconds(10));
             }
 
             return;
         }
+
+
+        public static async Task PublishEventSystemPerformance(LocalSystemPerformance input, SchemaRegistryConfig schemaRegistryConfig, ClientConfig kafkaConfig, string[] topics)
+        {
+            using (var schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryConfig))
+            {
+                //using (var producer = new Producer<string, string>(config, new StringSerializer(Encoding.UTF8), new StringSerializer(Encoding.UTF8)))
+
+                // Produce events to the topic
+                var producer = new ProducerBuilder<string, LocalSystemPerformance>(kafkaConfig)
+                    .SetValueSerializer(new JsonSerializer<LocalSystemPerformance>(schemaRegistry, new JsonSerializerConfig { BufferBytes = 100 }))
+                    .Build();
+
+                var localMessage = new Message<string, LocalSystemPerformance>();
+                localMessage.Key = "LocalSystemPerformance";
+                localMessage.Value = input;
+
+                // Synchronous producer, does not work with Json serialisation
+                //producer.Produce(topics[0], localMessage, SyncHandler);
+
+                // Create asynchronous task (and wait for it)
+                var delivery = producer.ProduceAsync(topics[1], localMessage);
+                await delivery.ContinueWith(AsyncHandlerLocalSystemPerformance);
+
+                producer.Flush(TimeSpan.FromSeconds(10));
+            }
+
+            return;
+        }
+
+
 
         // Delegate function for the result handling of the publication (delivery report).
         public static void SyncHandler(DeliveryReport<string, DataObjectMapping> inputDeliveryReport)
@@ -160,7 +224,7 @@ namespace confluent_producer
         }
 
         // Local function for result handling (DeliveryResult) in asynchronous mode.
-        public static void AsyncHandler(Task<DeliveryResult<string, DataObjectMapping>> inputDeliveryResult)
+        public static void AsyncHandlerDataObjectMapping(Task<DeliveryResult<string, DataObjectMapping>> inputDeliveryResult)
         {
             if (inputDeliveryResult.IsFaulted)
             {
@@ -172,5 +236,20 @@ namespace confluent_producer
                     $"Produced message {inputDeliveryResult.Result.Value.sourceDataObject.name}-{inputDeliveryResult.Result.Value.targetDataObject.name} to topic {inputDeliveryResult.Result.Topic} for partition {inputDeliveryResult.Result.Partition} and offset {inputDeliveryResult.Result.Offset}");
             }
         }
+
+        // Local function for result handling (DeliveryResult) in asynchronous mode.
+        public static void AsyncHandlerLocalSystemPerformance(Task<DeliveryResult<string, LocalSystemPerformance>> input)
+        {
+            if (input.IsFaulted)
+            {
+                Console.WriteLine($"Failed to deliver message: {input.Result.Key}");
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"Produced message {input.Result.Value} to topic {input.Result.Topic} for partition {input.Result.Partition} and offset {input.Result.Offset}");
+            }
+        }
+
     }
 }

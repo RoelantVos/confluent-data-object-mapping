@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using Confluent.Kafka.SyncOverAsync;
-using Confluent.SchemaRegistry;
 using Confluent.SchemaRegistry.Serdes;
 using confluent_lib;
 using DataWarehouseAutomation;
@@ -23,91 +21,93 @@ namespace confluent_consumer
             internal static string[] topics { get; } = new string[] { "dataObjectMappings" };
         }
 
-static async Task Main()
-{
-    // Setting up the configuration for the Kafka client and Schema registry, saved in a local file
-    GlobalParameters.clientConfig = await ConfluentHelper.LoadKafkaConfiguration(@"D:\Git_Repositories\confluent-configuration.txt", null);
-
-    List<DataObjectMapping> localMappingList = new List<DataObjectMapping>();
-
-    // Consumer group
-    var consumerConfig = new ConsumerConfig(GlobalParameters.clientConfig)
-    {
-        GroupId = "data-object-mapping-consumer",
-        AutoOffsetReset = AutoOffsetReset.Earliest,
-        EnableAutoCommit = true,
-        EnablePartitionEof = true
-    };
-
-    // Cancellation input key (token) for quitting the process in async mode
-    CancellationTokenSource cts = new CancellationTokenSource();
-    Console.CancelKeyPress += (_, e) =>
-    {
-        e.Cancel = true; // prevent the process from terminating.
-        cts.Cancel();
-    };
-
-
-    using (var consumer = new ConsumerBuilder<string, DataObjectMapping>(consumerConfig)
-        //.SetValueDeserializer(new JsonDeserializer<DataObjectMapping>().AsSyncOverAsync())
-        .SetValueDeserializer(new JsonDeserializer<DataObjectMapping>().AsSyncOverAsync())
-        .SetErrorHandler((_, e) => Console.WriteLine($"Error: {e.Reason}"))
-        .SetStatisticsHandler((_, json) => Console.WriteLine($"Statistics: {json}"))
-        .SetPartitionsAssignedHandler((c, partitions) =>
+        static async Task Main()
         {
-            Console.WriteLine($"Assigned partitions: [{string.Join(", ", partitions)}]");
+            // Setting up the configuration for the Kafka client and Schema registry, saved in a local file
+            GlobalParameters.clientConfig = await ConfluentHelper.LoadKafkaConfiguration(@"C:\Github\confluent-configuration.txt", null);
+            Console.WriteLine("Loaded client configuration, commencing consuming.");
+
+            List<DataObjectMapping> localMappingList = new List<DataObjectMapping>();
+
+            // Consumer group
+            var consumerConfig = new ConsumerConfig(GlobalParameters.clientConfig)
+            {
+                GroupId = "data-object-mapping-consumer",
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                EnableAutoCommit = true,
+                EnablePartitionEof = true
+            };
+
+            // Cancellation input key (token) for quitting the process in async mode
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Console.WriteLine("Press CTRL-C any time to quit polling for new events.");
+            Console.CancelKeyPress += (_, e) =>
+            {
+                e.Cancel = true; // prevent the process from terminating.
+        cts.Cancel();
+            };
+
+
+            using (var consumer = new ConsumerBuilder<string, DataObjectMapping>(consumerConfig)
+                //.SetValueDeserializer(new JsonDeserializer<DataObjectMapping>().AsSyncOverAsync())
+                .SetValueDeserializer(new JsonDeserializer<DataObjectMapping>().AsSyncOverAsync())
+                .SetErrorHandler((_, e) => Console.WriteLine($"Error: {e.Reason}"))
+                .SetStatisticsHandler((_, json) => Console.WriteLine($"Statistics: {json}"))
+                .SetPartitionsAssignedHandler((c, partitions) =>
+                {
+                    Console.WriteLine($"Assigned partitions: [{string.Join(", ", partitions)}]");
             // possibly manually specify start offsets or override the partition assignment provided by
             // the consumer group by returning a list of topic/partition/offsets to assign to, e.g.:
             // 
             //return partitions.Select(tp => new TopicPartitionOffset(tp, externalOffsets[tp]));
         })
-        .SetPartitionsRevokedHandler((c, partitions) =>
-        {
-            Console.WriteLine($"Revoking assignment: [{string.Join(", ", partitions)}]");
-        })
-        .Build())
-    {
-        consumer.Subscribe(GlobalParameters.topics);
-
-
-        // Manual assignment (not automatic subscribe)
-        //var partitionList = topics.Select(topic => new TopicPartitionOffset(topic, 0, Offset.Beginning)).ToList();
-        //consumer.Assign(partitionList);
-
-        try
-        {
-            while (true)
+                .SetPartitionsRevokedHandler((c, partitions) =>
+                {
+                    Console.WriteLine($"Revoking assignment: [{string.Join(", ", partitions)}]");
+                })
+                .Build())
             {
+                consumer.Subscribe(GlobalParameters.topics);
+
+
+                // Manual assignment (not automatic subscribe)
+                //var partitionList = topics.Select(topic => new TopicPartitionOffset(topic, 0, Offset.Beginning)).ToList();
+                //consumer.Assign(partitionList);
+
                 try
                 {
-                    var consumeResult = consumer.Consume(cts.Token);
-
-
-                    // End of partition notification has not been enabled, meaning it is guaranteed that the ConsumeResult instance corresponds to a Message, and not a PartitionEOF event.
-                    if (consumeResult.IsPartitionEOF)
+                    while (true)
                     {
-                        Console.WriteLine(
-                            $"Reached end of topic {consumeResult.Topic}, partition {consumeResult.Partition}, offset {consumeResult.Offset}.");
+                        try
+                        {
+                            var consumeResult = consumer.Consume(cts.Token);
 
-                        continue;
+
+                            // End of partition notification has not been enabled, meaning it is guaranteed that the ConsumeResult instance corresponds to a Message, and not a PartitionEOF event.
+                            if (consumeResult.IsPartitionEOF)
+                            {
+                                Console.WriteLine(
+                                    $"Reached end of topic {consumeResult.Topic}, partition {consumeResult.Partition}, offset {consumeResult.Offset}.");
+
+                                continue;
+                            }
+
+                            Console.WriteLine($"Received message at {consumeResult.TopicPartitionOffset}: ${consumeResult.Message.Value.sourceDataObject.name}-{consumeResult.Message.Value.targetDataObject.name}");
+
+                            localMappingList.Add(consumeResult.Message.Value);
+                        }
+                        catch (ConsumeException e)
+                        {
+                            Console.WriteLine($"Consume error: {e.Error.Reason}");
+                        }
                     }
-
-                    Console.WriteLine($"Received message at {consumeResult.TopicPartitionOffset}: ${consumeResult.Message.Value.sourceDataObject.name}-{consumeResult.Message.Value.targetDataObject.name}");
-                    
-                    localMappingList.Add(consumeResult.Message.Value);
                 }
-                catch (ConsumeException e)
+                catch (OperationCanceledException)
                 {
-                    Console.WriteLine($"Consume error: {e.Error.Reason}");
+                    Console.WriteLine("Closing consumer.");
+                    consumer.Close();
                 }
             }
-        }
-        catch (OperationCanceledException)
-        {
-            Console.WriteLine("Closing consumer.");
-            consumer.Close();
-        }
-    }
 
 
             // Display received in-memory events back to the user

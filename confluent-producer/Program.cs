@@ -27,8 +27,7 @@ namespace confluent_producer
             this.cpuPercentage = localPercentage.NextValue();
             this.memPercentage = new PerformanceCounter("Memory", "Available MBytes").NextValue();
         }
-    }
-    
+    }   
 
     
 
